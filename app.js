@@ -13,6 +13,7 @@ const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const morgan = require('morgan');
 const paymentRoutes = require('./routes/checkout');
+const eventRoutes = require('./routes/events');
 
 const app = express();
 
@@ -37,5 +38,6 @@ app.get('/estatusServer', (req, res) => {
 });
 
 app.use('/api', paymentRoutes);
+app.use('/api', eventRoutes);
 
 module.exports = app;
