@@ -10,8 +10,7 @@
 const { preferenceService } = require('../config/mercado-pago');
 const { isEmail } = require('validator');
 
-async function createPreference(items, payerEmail, orderId) {
-
+async function createPreference(items, payerEmail, payerUid, externalReference) {
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error('Debe enviarse al menos un ítem para la preferencia.');
   }
@@ -34,12 +33,33 @@ async function createPreference(items, payerEmail, orderId) {
   });
 
   try {
+    const preferenceData = {
+      items: mpItems,
+      payer: { email: payerEmail },
+      back_urls: {
+        success: "ydapp://payment-success",
+        pending: "ydapp://payment-pending",
+        failure: "ydapp://payment-failure"
+      },
+      auto_return: "approved",
+      external_reference: externalReference,
+      metadata: {
+        firebase_uid: payerUid,
+        boletos: JSON.stringify(mpItems)
+      }
+    };
 
-    const preferenceData = { items: mpItems, payer: { email: payerEmail } };
     const result = await preferenceService.create({ body: preferenceData });
-    return result.response?.body?.id
-        || result.body?.id
-        || result.id;
+    const data = result.response?.body || result.body || result;
+
+    const prefId = data.id;
+    const initPoint = data.init_point;
+
+    if (!prefId || !initPoint) {
+      throw new Error("No se devolvió init_point o id válidos");
+    }
+
+    return { prefId, initPoint };
 
   } catch (err) {
     console.error('MP Error:', err);

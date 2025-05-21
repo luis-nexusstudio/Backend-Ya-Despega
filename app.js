@@ -14,6 +14,9 @@ const hpp = require('hpp');
 const morgan = require('morgan');
 const paymentRoutes = require('./routes/checkout');
 const eventRoutes = require('./routes/events');
+const notificationsMP = require('./routes/notifications');
+const ordersRoutes = require('./routes/orders');
+
 
 const app = express();
 
@@ -39,5 +42,7 @@ app.get('/estatusServer', (req, res) => {
 
 app.use('/api', paymentRoutes);
 app.use('/api', eventRoutes);
+app.use('/api', notificationsMP);
+app.use('/api', ordersRoutes);
 
 module.exports = app;
