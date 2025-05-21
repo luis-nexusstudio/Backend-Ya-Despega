@@ -13,6 +13,7 @@ Está diseñado para ser consumido por una aplicación iOS que utilice **Checkou
 
 1. Clona este repositorio en tu equipo de trabajo.
 2. Crea tu .env e instala los node_modules.
+3. El .json se descarga desde firebase en configuración del proyecto en cuentas de servicio.
 
 ## Config .env
 MP_ACCESS_TOKEN=
