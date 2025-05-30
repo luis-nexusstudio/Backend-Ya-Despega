@@ -15,6 +15,9 @@ const morgan = require('morgan');
 const paymentRoutes = require('./routes/checkout');
 const eventRoutes = require('./routes/events');
 const usersRoutes = require('./routes/users');
+const notificationsMP = require('./routes/notifications');
+const ordersRoutes = require('./routes/orders');
+const homeDetailsRoutes = require('./routes/home');
 
 const app = express();
 
@@ -41,5 +44,9 @@ app.get('/estatusServer', (req, res) => {
 app.use('/api', paymentRoutes);
 app.use('/api', eventRoutes);
 app.use('/api', usersRoutes);
+app.use('/api', notificationsMP);
+app.use('/api', ordersRoutes);
+app.use('/api', homeDetailsRoutes);
+
 
 module.exports = app;
