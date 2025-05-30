@@ -33,7 +33,7 @@ async function handleCreatePreference(req, res) {
 
     await orderRef.set({
       userId: payerUid,
-      status: 'pending',
+      status: 'created',
       createdAt: new Date().toISOString(),
       items: mpItems,
       external_reference: externalRef
@@ -41,7 +41,8 @@ async function handleCreatePreference(req, res) {
 
     return res.json({
       preferenceId: prefId,
-      checkoutUrl:  initPoint
+      checkoutUrl:  initPoint,
+      externalReference: externalRef
     });
 
   } catch (err) {

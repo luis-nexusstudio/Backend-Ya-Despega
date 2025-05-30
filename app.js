@@ -16,6 +16,9 @@ const paymentRoutes = require('./routes/checkout');
 const eventRoutes = require('./routes/events');
 const notificationsMP = require('./routes/notifications');
 const ordersRoutes = require('./routes/orders');
+const homeDetailsRoutes = require('./routes/home');
+
+
 
 
 const app = express();
@@ -44,5 +47,8 @@ app.use('/api', paymentRoutes);
 app.use('/api', eventRoutes);
 app.use('/api', notificationsMP);
 app.use('/api', ordersRoutes);
+app.use('/api', homeDetailsRoutes);
+
+
 
 module.exports = app;
