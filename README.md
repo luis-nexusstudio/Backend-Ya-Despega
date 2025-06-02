@@ -23,12 +23,12 @@ FIREBASE_SERVICE_ACCOUNT=
 
 # Librerias
 1. npm install firebase-admin
-2. npm npm install express 
-3. npm dotenv 
-4. npm helmet 
-5. npm express-rate-limit 
-6. npm morgan 
-7. npm hpp 
-8. npm xss-clean 
-9. npm mercadopago 
-10. npm express-validator
+2. npm install express 
+3. npm install dotenv 
+4. npm install helmet 
+5. npm install express-rate-limit 
+6. npm install morgan 
+7. npm install hpp 
+8. npm install xss-clean 
+9. npm install mercadopago 
+10. npm install express-validator
