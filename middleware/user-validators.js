@@ -36,6 +36,16 @@ const updateUserRules = [
   
 ];
 
+const addUserRules = [
+  body().notEmpty().withMessage('Se requieren datos para actualizar'),
+  body('nombres').optional().isString().trim().isLength({ min: 2, max: 100 }).withMessage('El nombre debe tener entre 2 y 100 caracteres'),
+  body('apellido_paterno').optional().isString().trim().isLength({ min: 2, max: 100 }).withMessage('El nombre debe tener entre 2 y 100 caracteres'),
+  body('apellido_materno').optional().isString().trim().isLength({ min: 2, max: 100 }).withMessage('El nombre debe tener entre 2 y 100 caracteres'),
+  body('numero_celular').optional().isString().trim().matches(/^[0-9+\s()-]{8,20}$/).withMessage('Formato de teléfono inválido'),
+  body('email').optional().isEmail().withMessage('Formato de correo electrónico inválido'),
+  body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),    
+];
+
 function validate(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -50,5 +60,6 @@ module.exports = {
   getAllUsersRules,
   searchUsersRules,
   updateUserRules,
+  addUserRules,
   validate,
 };
