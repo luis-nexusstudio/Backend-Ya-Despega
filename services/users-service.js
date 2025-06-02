@@ -103,10 +103,103 @@ async function updateUserById(userId, userData) {
   };
 }
 
+/**
+ * Registrar un usuario
+ * @param {Object} userData - Datos a registrar
+ * @returns {Promise<Object>} - Respuesta con status e info actualizada
+ */
+async function addUser(userData) {
+  try {
+    const { email, password, nombres, apellido_paterno, apellido_materno, numero_celular } = userData;
+
+    // 1. CREAR USUARIO EN FIREBASE AUTH
+    let userRecord;
+    try {
+      userRecord = await admin.auth().createUser({
+        email: email,
+        password: password,
+        emailVerified: false
+      });
+      console.log('✅ Usuario creado en Auth:', userRecord.uid);
+    } catch (authError) {
+      console.error('❌ Error en Firebase Auth:', authError);
+      
+      // Manejar errores específicos de Auth
+      if (authError.code === 'auth/email-already-exists') {
+        return {
+          status: 'error',
+          message: 'El correo ya está registrado'
+        };
+      }
+      
+      return {
+        status: 'error',
+        message: 'Error al crear usuario en autenticación'
+      };
+    }
+
+    // 2. CREAR DOCUMENTO EN FIRESTORE CON EL UID COMO ID
+    try {
+      const userDocData = {
+        nombres: nombres,
+        apellido_paterno: apellido_paterno,
+        apellido_materno: apellido_materno,
+        numero_celular: numero_celular,
+        email: email,
+        rol_id: "1", // Default role
+        fecha_registro: admin.firestore.FieldValue.serverTimestamp()
+      };
+
+      // Crear documento usando el UID como ID del documento
+      const userRef = db.collection('usuarios').doc(userRecord.uid);
+      await userRef.set(userDocData);
+      
+      console.log('✅ Usuario guardado en Firestore:', userRecord.uid);
+
+      // Obtener el documento creado
+      const savedDoc = await userRef.get();
+
+      return {
+        status: 'success',
+        message: 'Usuario registrado exitosamente',
+        user: {
+          id: savedDoc.id, // Este es el UID
+          ...savedDoc.data()
+        }
+      };
+
+    } catch (firestoreError) {
+      console.error('❌ Error en Firestore:', firestoreError);
+      
+      // ROLLBACK: Si falla Firestore, eliminar usuario de Auth
+      try {
+        await admin.auth().deleteUser(userRecord.uid);
+        console.log('🔄 Rollback: Usuario eliminado de Auth');
+      } catch (deleteError) {
+        console.error('❌ Error en rollback:', deleteError);
+      }
+
+      return {
+        status: 'error',
+        message: 'Error al guardar datos del usuario'
+      };
+    }
+
+  } catch (error) {
+    console.error('❌ Error general en registro:', error);
+    return {
+      status: 'error',
+      message: 'Error interno del servidor'
+    };
+  }
+}
+
+
 module.exports = {
   getUserById,
   getAllUsers,
   getUsersByField,
   getUserByEmail,
-  updateUserById
+  updateUserById,
+  addUser
 };

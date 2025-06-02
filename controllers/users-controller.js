@@ -12,7 +12,8 @@ const {
   getAllUsers, 
   getUsersByField,
   getUserByEmail,
-  updateUserById
+  updateUserById,
+  addUser
 } = require('../services/users-service');
 
 /**
@@ -122,10 +123,41 @@ async function handleUpdateUserById(req, res) {
   }
 }
 
+/**
+ * Maneja la solicitud para agregar un usuario
+ */
+async function handleAddUser(req, res) {
+  try {
+    const userData = req.body;
+    
+    // Verificar que se enviaron datos para registrar
+    if (!userData || Object.keys(userData).length === 0) {
+      return res.status(400).json({ error: 'No se enviaron datos para registrar' });
+    }
+    
+    // Intentar registrar el usuario
+    const result = await addUser(userData);
+    
+    if (result.status === 'error') {
+      return res.status(400).json({ error: result.message }); // ← 400 (Bad Request)
+    }
+    
+    res.status(201).json({  // ← 201 (Created) para registros exitosos
+      message: 'Usuario registrado correctamente',
+      user: result.user 
+    });
+    
+  } catch (err) {
+    console.error('Error al registrar usuario:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+}
+
 module.exports = {
   handleGetUserById,
   handleGetAllUsers,
   handleSearchUsers,
   handleGetUserByEmail,
-  handleUpdateUserById
+  handleUpdateUserById,
+  handleAddUser
 };

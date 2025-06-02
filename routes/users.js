@@ -15,7 +15,8 @@ const {
   handleGetAllUsers, 
   handleSearchUsers,
   handleGetUserByEmail,
-  handleUpdateUserById
+  handleUpdateUserById,
+  handleAddUser
 } = require('../controllers/users-controller');
 const {
   getUserByEmailRules,
@@ -23,6 +24,7 @@ const {
   getAllUsersRules,
   searchUsersRules,
   updateUserRules,
+  addUserRules,
   validate
 } = require('../middleware/user-validators');
 
@@ -40,5 +42,9 @@ router.get('/users/search', firebaseAuth, searchUsersRules, validate, handleSear
 
 // Ruta para actualizar un usuario por ID
 router.put('/user/:userId', firebaseAuth, updateUserRules, validate, handleUpdateUserById);
+
+// Ruta para registrar un usuario
+router.post('/user/add', addUserRules, validate, handleAddUser);
+
 
 module.exports = router;
