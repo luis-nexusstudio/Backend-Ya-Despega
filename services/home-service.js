@@ -29,7 +29,8 @@ async function getHomeEventData(eventId) {
         if (pastor && pastor.nombre && pastor.informacion) {
           lineup.push({
             nombre: pastor.nombre,
-            informacion: pastor.informacion
+            informacion: pastor.informacion,
+            imageName: pastor.imageName
           });
         }
       }
@@ -37,9 +38,12 @@ async function getHomeEventData(eventId) {
       // Si line_up es un array (compatibilidad con formato anterior)
       eventData.line_up.forEach(speaker => {
         if (speaker && speaker.nombre && speaker.informacion) {
+            console.log(speaker.imageName)
+
           lineup.push({
             nombre: speaker.nombre,
-            informacion: speaker.informacion
+            informacion: speaker.informacion,
+            imageName: speaker.imageName
           });
         }
       });
@@ -76,7 +80,8 @@ async function getHomeEventData(eventId) {
       informacion_evento: eventData.informacion_evento || '',
       lineup: lineup.map(speaker => ({
         nombre: speaker.nombre || '',
-        informacion: speaker.informacion || ''
+        informacion: speaker.informacion || '',
+        imageName: speaker.imageName || ''
       })),
       ubicacion: eventData.ubicacion?.ubicacion_nombre || '',
       coordenadas: {
