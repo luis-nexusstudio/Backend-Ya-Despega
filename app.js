@@ -18,6 +18,7 @@ const usersRoutes = require('./routes/users');
 const notificationsMP = require('./routes/notifications');
 const ordersRoutes = require('./routes/orders');
 const homeDetailsRoutes = require('./routes/home');
+const verificationRoutes = require('./routes/verification'); // 🔐 NUEVO
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use('/api', usersRoutes);
 app.use('/api', notificationsMP);
 app.use('/api', ordersRoutes);
 app.use('/api', homeDetailsRoutes);
+app.use('/api', verificationRoutes); // 🔐 NUEVO
 
 
 module.exports = app;

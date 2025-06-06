@@ -104,7 +104,7 @@ async function updateUserById(userId, userData) {
 }
 
 /**
- * Registrar un usuario
+ * Registrar un usuario con verificación de email
  * @param {Object} userData - Datos a registrar
  * @returns {Promise<Object>} - Respuesta con status e info actualizada
  */
@@ -138,7 +138,7 @@ async function addUser(userData) {
       };
     }
 
-    // 2. CREAR DOCUMENTO EN FIRESTORE CON EL UID COMO ID
+    // 2. CREAR DOCUMENTO EN FIRESTORE
     try {
       const userDocData = {
         nombres: nombres,
@@ -146,30 +146,32 @@ async function addUser(userData) {
         apellido_materno: apellido_materno,
         numero_celular: numero_celular,
         email: email,
-        rol_id: "1", // Default role
-        fecha_registro: admin.firestore.FieldValue.serverTimestamp()
+        rol_id: "1",
+        fecha_registro: admin.firestore.FieldValue.serverTimestamp(),
+        estatus_verificacion: "pendiente",
+        fecha_verificacion: null,
+        ultimo_envio_verificacion: admin.firestore.FieldValue.serverTimestamp()
       };
 
-      // Crear documento usando el UID como ID del documento
       const userRef = db.collection('usuarios').doc(userRecord.uid);
       await userRef.set(userDocData);
       
       console.log('✅ Usuario guardado en Firestore:', userRecord.uid);
 
-      // Obtener el documento creado
+      // Obtener documento creado
       const savedDoc = await userRef.get();
 
       return {
         status: 'success',
-        message: 'Usuario registrado exitosamente',
+        message: 'Usuario registrado exitosamente. Te hemos enviado un correo de verificación.',
         user: {
-          id: savedDoc.id, // Este es el UID
+          id: savedDoc.id,
           ...savedDoc.data()
         }
       };
 
     } catch (firestoreError) {
-      console.error('❌ Error en Firestore:', firestoreError);
+       console.error('❌ Error en Firestore:', firestoreError);
       
       // ROLLBACK: Si falla Firestore, eliminar usuario de Auth
       try {
@@ -194,6 +196,67 @@ async function addUser(userData) {
   }
 }
 
+/**
+ * Verificar el estado de verificación de email de un usuario
+ * @param {string} userId - ID del usuario
+ * @returns {Promise<Object>} - Estado de verificación
+ */
+async function getVerificationStatus(userId) {
+  try {
+    // 1. Obtener estado actual de Firebase Auth
+    const userRecord = await admin.auth().getUser(userId);
+    
+    // 2. Obtener estado en Firestore
+    const userDoc = await db.collection('usuarios').doc(userId).get();
+    
+    if (!userDoc.exists) {
+      return {
+        status: 'error',
+        message: 'Usuario no encontrado en base de datos'
+      };
+    }
+
+    const userData = userDoc.data();
+    const authEmailVerified = userRecord.emailVerified;
+    const firestoreStatus = userData.estatus_verificacion;
+
+    // 3. Sincronizar estados si es necesario
+    if (authEmailVerified && firestoreStatus === 'pendiente') {
+      // El usuario verificó en Firebase Auth pero no está actualizado en Firestore
+      await db.collection('usuarios').doc(userId).update({
+        estatus_verificacion: 'success',
+        fecha_verificacion: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      console.log(`✅ Estado de verificación sincronizado para usuario ${userId}`);
+      
+      return {
+        status: 'success',
+        verified: true,
+        auth_verified: true,
+        firestore_status: 'success',
+        message: 'Email verificado correctamente',
+        can_purchase: true
+      };
+    }
+
+    return {
+      status: 'success',
+      verified: authEmailVerified && firestoreStatus === 'success',
+      auth_verified: authEmailVerified,
+      firestore_status: firestoreStatus,
+      message: authEmailVerified ? 'Email verificado' : 'Email pendiente de verificación'
+    };
+
+  } catch (error) {
+    console.error('❌ Error verificando estado:', error);
+    return {
+      status: 'error',
+      message: 'Error al verificar estado de email'
+    };
+  }
+}
+
 
 module.exports = {
   getUserById,
@@ -201,5 +264,6 @@ module.exports = {
   getUsersByField,
   getUserByEmail,
   updateUserById,
-  addUser
+  addUser,
+  getVerificationStatus
 };

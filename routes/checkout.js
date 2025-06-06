@@ -10,6 +10,7 @@
 const express = require('express');
 const { handleCreatePreference } = require('../controllers/checkout-controller');
 const firebaseAuth = require('../middleware/auth');
+const { requireEmailVerification } = require('../middleware/email-verification');
 const { createPreferenceRules, validate } = require('../middleware/validators');
 
 const router = express.Router();
@@ -18,6 +19,7 @@ const router = express.Router();
 router.post(
   '/create-preference',
   firebaseAuth,
+  requireEmailVerification,
   createPreferenceRules,
   validate,
   handleCreatePreference

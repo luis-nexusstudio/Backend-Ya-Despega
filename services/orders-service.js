@@ -41,8 +41,10 @@ async function fetchOrderForUserByExternalReference(externalReference, uid) {
  * Trae todas las órdenes del usuario, ordenadas por fecha de creación (más recientes primero)
  */
 async function fetchAllOrdersForUser(uid) {
+
   const querySnapshot = await db.collection('ordenes')
     .where('userId', '==', uid)
+    .where('status', 'not-in', ['created'])
     .get();
   
   if (querySnapshot.empty) {

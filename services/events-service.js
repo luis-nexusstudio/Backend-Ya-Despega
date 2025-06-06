@@ -12,7 +12,7 @@ async function getBoletosByEventoRef(eventRef) {
   return snapshot.docs.map(doc => ({
     id: doc.id,
     descripcion: doc.data().descripcion,
-    tipo: doc.data().tipo,
+    imageName: doc.data().imageName,
     precio: doc.data().precio,
     disponibilidad: doc.data().disponibilidad,
     beneficios: Array.isArray(doc.data().beneficios)
